@@ -1,0 +1,25 @@
+<!--
+  Paste into the question's HTML View (a Text/Graphic question).
+  The video URL is set in question.js, not here.
+-->
+<div id="spb-wrap" style="max-width:960px;margin:0 auto;text-align:center;font-size:18px;line-height:1.5;">
+  <p id="spb-intro">
+    Next is a breathing exercise that takes about 12 minutes. Please sit somewhere quiet,
+    turn your sound on, and stay on this page until it finishes. When you're ready, press Start.
+  </p>
+
+  <video id="spb-video" preload="auto" playsinline disablepictureinpicture
+         controlslist="nodownload noplaybackrate noremoteplayback"
+         style="display:none;width:100%;aspect-ratio:16/9;background:#1F2A33;border-radius:6px;"></video>
+
+  <button id="spb-start" type="button"
+          style="font-size:18px;padding:12px 28px;border-radius:999px;border:0;background:#86AEC2;color:#1F2A33;font-weight:700;cursor:pointer;">
+    Start
+  </button>
+  <button id="spb-resume" type="button"
+          style="display:none;font-size:18px;padding:12px 28px;border-radius:999px;border:0;background:#86AEC2;color:#1F2A33;font-weight:700;cursor:pointer;margin-top:16px;">
+    Continue the exercise
+  </button>
+
+  <p id="spb-status" aria-live="polite" style="min-height:1.5em;color:#555;"></p>
+</div>

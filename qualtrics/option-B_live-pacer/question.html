@@ -1,0 +1,26 @@
+<!--
+  Paste into the question's HTML View (a Text/Graphic question).
+  No video hosting needed: the pacer is drawn live by question.js.
+-->
+<div id="spb-wrap" style="max-width:960px;margin:0 auto;text-align:center;font-size:18px;line-height:1.5;">
+  <div id="spb-intro" style="text-align:left;max-width:60ch;margin:0 auto 20px;">
+    <p>In the next 10 minutes, you'll breathe along with a circle on the screen.</p>
+    <p>As it grows, breathe in gently through your nose. As it shrinks, breathe out slowly.
+       Keep each breath light and comfortable. There's no need to breathe deeply.</p>
+    <p>Sit upright and keep your eyes on the circle. If you feel dizzy or short of breath,
+       breathe normally for a moment, then rejoin the circle.</p>
+    <p>You'll start with three practice breaths. Please stay on this page until it finishes.</p>
+  </div>
+
+  <canvas id="spb-canvas" style="display:none;width:100%;aspect-ratio:16/9;background:#1F2A33;border-radius:6px;"></canvas>
+
+  <button id="spb-start" type="button"
+          style="font-size:18px;padding:12px 28px;border-radius:999px;border:0;background:#86AEC2;color:#1F2A33;font-weight:700;cursor:pointer;">
+    Start
+  </button>
+  <button id="spb-resume" type="button"
+          style="display:none;font-size:18px;padding:12px 28px;border-radius:999px;border:0;background:#86AEC2;color:#1F2A33;font-weight:700;cursor:pointer;margin-top:16px;">
+    Continue the exercise
+  </button>
+  <p id="spb-status" aria-live="polite" style="min-height:1.5em;color:#555;"></p>
+</div>
