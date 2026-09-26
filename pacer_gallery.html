@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>4:6 Breathing Pacer Studio — Refined Prototype</title>
+<style>
+:root{
+  --bg:#131d24; --top:#17242c; --panel:#1d2b34; --panel2:#22333d;
+  --ink:#f3f7f8; --muted:#b4c0c7; --line:#39505e; --line2:#4a6472;
+  --accent:#9bc7d9; --accent-strong:#b9ddea; --accent-dark:#12242e;
+  --warn:#f0d49b; --ok:#b9d8bf; --danger:#f0b3ad;
+  --shadow:0 12px 34px rgba(0,0,0,.24); --radius:16px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+button,select,input{font:inherit}
+a{color:var(--accent-strong);text-underline-offset:3px}
+.skip{position:fixed;left:-9999px;top:10px;z-index:99;background:#fff;color:#111;padding:10px 14px;border-radius:8px}
+.skip:focus{left:14px}
+.top{position:sticky;top:0;z-index:30;background:rgba(19,29,36,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topin{max-width:1240px;margin:auto;padding:12px 22px;display:flex;align-items:center;gap:18px;justify-content:space-between}
+.brand{font-weight:800;letter-spacing:.01em;white-space:nowrap}
+.nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.nav a{color:var(--ink);text-decoration:none;padding:7px 10px;border-radius:8px;font-size:14px}
+.nav a:hover,.nav a:focus-visible{background:var(--panel2);outline:2px solid var(--accent);outline-offset:1px}
+.wrap{max-width:1240px;margin:auto;padding:26px 22px 74px}
+.pagehead{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,.7fr);gap:24px;align-items:start;margin-bottom:24px}
+.pagehead h1{font-size:clamp(28px,4vw,46px);line-height:1.08;margin:4px 0 12px;letter-spacing:-.025em}
+.lede{font-size:17px;color:var(--muted);max-width:72ch;margin:0}
+.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);padding:4px 9px;border-radius:999px;color:var(--muted);font-size:12px}
+.note{border:1px solid #6d6046;border-left:4px solid var(--warn);padding:13px 14px;background:#292c29;border-radius:10px;color:#f1e6cf;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.span8{grid-column:span 8}.span4{grid-column:span 4}.span7{grid-column:span 7}.span5{grid-column:span 5}.span6{grid-column:span 6}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);min-width:0}
+.card h2{margin:0 0 12px;font-size:22px;line-height:1.2}.card h3{margin:0 0 8px;font-size:16px}
+section{scroll-margin-top:82px;margin-top:16px}
+.small{font-size:13px;color:var(--muted)}
+
+/* ---------- stage ---------- */
+.stageShell{position:relative}
+.stage{aspect-ratio:16/9;border-radius:14px;border:1px solid var(--line2);background:linear-gradient(180deg,#1c2932,#1a2730);position:relative;overflow:hidden;min-height:330px}
+.visualLayer{position:absolute;inset:0;pointer-events:none}
+.timer{position:absolute;top:18px;right:20px;color:#c8d5da;font-variant-numeric:tabular-nums;font-size:14px;z-index:3}
+.phase{position:absolute;left:24px;right:24px;bottom:20px;text-align:center;font-weight:760;font-size:21px;z-index:3;min-height:1.55em}
+.stageStatus{position:absolute;left:18px;top:17px;color:var(--muted);font-size:12px;z-index:3}
+.circleGuide{position:absolute;left:50%;top:47%;width:48%;aspect-ratio:1;border:1px solid #40535f;border-radius:50%;transform:translate(-50%,-50%);max-width:420px;opacity:.95}
+.circle{position:absolute;left:50%;top:47%;width:31%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%) scale(.52);transform-origin:center;background:radial-gradient(circle at 35% 30%,#c1e1ec 0,#8fbdd0 45%,#608ea5 100%);box-shadow:0 0 54px rgba(143,189,208,.14);will-change:transform}
+.ballTrack{position:absolute;left:50%;top:15%;height:68%;width:2px;background:linear-gradient(to bottom,transparent 0,#49606c 6%,#49606c 94%,transparent 100%);transform:translateX(-50%)}
+.ballTrack:before,.ballTrack:after{content:"";position:absolute;left:50%;width:12px;height:1px;background:#49606c;transform:translateX(-50%)}
+.ballTrack:before{top:0}.ballTrack:after{bottom:0}
+.ball{position:absolute;left:50%;top:83%;width:54px;height:54px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 36% 30%,#c6e6ef 0,#8fbfd2 45%,#5d8ca4 100%);box-shadow:0 0 30px rgba(143,191,210,.16);will-change:top}
+.barWrap{position:absolute;left:15%;right:15%;top:47%;height:34px;transform:translateY(-50%);border-radius:999px;background:#3a4d58;overflow:hidden;border:1px solid #4a616e}
+.barFill{height:100%;width:10%;border-radius:999px;background:linear-gradient(90deg,#6c9cb2,#a9d2e0);will-change:width}
+.waterBox{position:absolute;left:50%;top:47%;width:min(48%,360px);height:54%;transform:translate(-50%,-50%);border:1px solid #4c626f;border-radius:22px;overflow:hidden;background:#22323b}
+.water{position:absolute;left:0;right:0;bottom:0;height:12%;background:linear-gradient(#abd4e2,#6ea4ba);will-change:height}
+.water:before{content:"";position:absolute;left:-10%;right:-10%;top:-5px;height:10px;border-radius:50%;background:rgba(220,244,250,.25)}
+.ring{position:absolute;left:50%;top:47%;width:min(40%,300px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:conic-gradient(var(--accent) 0deg,#41525d 0deg);-webkit-mask:radial-gradient(circle,transparent 61%,#000 62%);mask:radial-gradient(circle,transparent 61%,#000 62%)}
+.ringCore{position:absolute;left:50%;top:47%;width:min(20%,150px);aspect-ratio:1;transform:translate(-50%,-50%) scale(.82);border-radius:50%;background:#8fbdd0;opacity:.9;will-change:transform}
+
+.transport{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px;align-items:center}
+button{cursor:pointer;border:1px solid transparent;border-radius:9px;padding:9px 13px;font-weight:750}
+button.primary{background:var(--accent);color:#11222a}
+button.secondary{background:#314650;color:var(--ink);border-color:var(--line2)}
+button.ghost{background:transparent;color:var(--ink);border-color:var(--line2)}
+button:hover{filter:brightness(1.06)}
+button:focus-visible,select:focus-visible,input:focus-visible,.choice:focus-visible{outline:3px solid var(--accent-strong);outline-offset:2px}
+.transport .spacer{flex:1}
+.statusPill{border:1px solid var(--line);color:var(--muted);padding:5px 9px;border-radius:999px;font-size:12px;white-space:nowrap}
+
+/* ---------- visual choices ---------- */
+.choiceGrid{display:grid;grid-template-columns:1fr;gap:8px}
+.choice{display:flex;align-items:center;gap:10px;width:100%;text-align:left;min-height:46px;background:#1a2730;color:var(--ink);border:1px solid var(--line);padding:10px;border-radius:10px;font-weight:650}
+.choice[aria-pressed="true"]{border-color:var(--accent);background:#243943;box-shadow:inset 0 0 0 1px var(--accent)}
+.choiceIcon{width:38px;height:28px;border-radius:7px;border:1px solid #4b616d;background:#22323b;position:relative;flex:0 0 auto;overflow:hidden}
+.choiceIcon.circle:after{content:"";position:absolute;width:14px;height:14px;border-radius:50%;background:var(--accent);left:11px;top:6px}
+.choiceIcon.ball:before{content:"";position:absolute;left:18px;top:3px;bottom:3px;width:1px;background:#4c616c}.choiceIcon.ball:after{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:var(--accent);left:14px;top:4px}
+.choiceIcon.bar:after{content:"";position:absolute;left:5px;right:5px;top:10px;height:7px;border-radius:8px;background:linear-gradient(90deg,var(--accent) 55%,#42545f 55%)}
+.choiceIcon.water:after{content:"";position:absolute;left:5px;right:5px;bottom:4px;height:12px;background:var(--accent);border-radius:2px}
+.choiceIcon.ring:after{content:"";position:absolute;width:15px;height:15px;border:4px solid var(--accent);border-right-color:#42545f;border-radius:50%;left:8px;top:3px}
+.fieldRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+select,input[type=file]{width:100%;background:#16242c;color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:9px 10px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.config{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;display:grid;gap:6px;font-size:13px;color:var(--muted)}
+.config b{color:var(--ink)}
+
+/* ---------- audio ---------- */
+.presetGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 14px}
+.preset{background:#1a2730;color:var(--ink);border:1px solid var(--line);padding:9px;border-radius:9px;font-size:13px;text-align:center}
+.preset[aria-pressed="true"]{background:#263b45;border-color:var(--accent)}
+.audioControls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.rangeLine{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.rangeLine span{font-variant-numeric:tabular-nums;color:var(--ink)}
+.audition{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.recommend{border-left:4px solid var(--ok);background:#22342b;padding:11px 12px;border-radius:8px;font-size:13px;color:#dcebdd;margin-top:12px}
+
+/* ---------- lower sections ---------- */
+.script{background:#142129;border:1px solid var(--line);padding:15px;border-radius:11px;font-size:16px}.script p{margin:.25em 0 .8em}.script p:last-child{margin-bottom:0}
+.voiceRow{display:grid;grid-template-columns:1.7fr .8fr;gap:10px;margin-top:12px}
+.researchList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.lead{padding:13px;border:1px solid var(--line);border-radius:11px;background:#18262e}.lead a{font-weight:750}.lead p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.footer{margin-top:42px;border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:13px}
+
+@media(max-width:980px){.span8,.span4,.span7,.span5,.span6{grid-column:1/-1}.pagehead{grid-template-columns:1fr}.researchList{grid-template-columns:1fr}.stage{min-height:300px}}
+@media(max-width:680px){.wrap{padding-left:14px;padding-right:14px}.topin{padding:10px 14px;align-items:flex-start;flex-direction:column}.nav{justify-content:flex-start}.fieldRow,.audioControls,.presetGrid,.voiceRow{grid-template-columns:1fr}.stage{min-height:260px}.card{padding:14px}.pagehead{gap:14px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<header class="top"><div class="topin"><div class="brand">4:6 Breathing Pacer Studio</div><nav class="nav" aria-label="Primary"><a href="#pacer">Pacer</a><a href="#audio">Audio lab</a><a href="#voice">Voice</a><a href="#research">Research leads</a><a href="#build">Build notes</a></nav></div></header>
+<main id="main" class="wrap">
+<div class="pagehead"><div><span class="chip">Research prototype · 4 s in / 6 s out</span><h1>Visual pacer + audio development studio</h1><p class="lede">A polished development interface for comparing pacer visuals, labels, ambience, phase cues, and voice before the final fixed Qualtrics stimulus is rendered.</p></div><aside class="note"><strong>Study-design note:</strong> nature sounds, waves, rain, and continuous noise can have their own effects. Treat them as optional production choices, not neutral decoration. Silence remains the cleanest default unless the comparison arm has equivalent ambience.</aside></div>
+
+<section id="pacer" class="grid">
+  <div class="span8 card">
+    <h2>Live pacer preview</h2>
+    <div class="stageShell">
+      <div class="stage" id="stage" aria-label="Animated breathing pacer preview" role="img">
+        <div class="stageStatus" id="stageStatus">Ready</div>
+        <div class="timer" id="timer">10:00</div>
+        <div class="visualLayer" id="visualLayer" aria-hidden="true"></div>
+        <div class="phase" id="phase" aria-live="polite">Ready</div>
+      </div>
+    </div>
+    <div class="transport">
+      <button class="primary" id="start">Start / resume</button>
+      <button class="secondary" id="pause">Pause</button>
+      <button class="secondary" id="reset">Reset</button>
+      <span class="spacer"></span><span class="statusPill" id="cycleStatus">Cycle 0 / 60</span>
+    </div>
+    <p class="small">Preview timing uses <code>performance.now()</code>. The final study stimulus should remain the frame-verified MP4.</p>
+  </div>
+
+  <div class="span4 card">
+    <h2>Visual gallery</h2>
+    <div class="choiceGrid" id="styleChoices" role="group" aria-label="Pacer style">
+      <button class="choice" data-style="circle" aria-pressed="true"><span class="choiceIcon circle"></span><span>Expanding circle</span></button>
+      <button class="choice" data-style="ball" aria-pressed="false"><span class="choiceIcon ball"></span><span>Rising ball</span></button>
+      <button class="choice" data-style="bar" aria-pressed="false"><span class="choiceIcon bar"></span><span>Filling bar</span></button>
+      <button class="choice" data-style="water" aria-pressed="false"><span class="choiceIcon water"></span><span>Water level</span></button>
+      <button class="choice" data-style="ring" aria-pressed="false"><span class="choiceIcon ring"></span><span>Circle + phase arc</span></button>
+    </div>
+    <div class="fieldRow">
+      <div><label for="labels">On-screen labels</label><select id="labels"><option value="always">Every breath</option><option value="practice">First 3 breaths only</option><option value="none">No labels</option></select></div>
+      <div><label for="demoSpeed">Preview speed</label><select id="demoSpeed"><option value="1">1× research timing</option><option value="2">2× for quick review</option><option value="4">4× for quick review</option></select></div>
+    </div>
+    <div class="config" aria-live="polite"><div><b>Selected:</b> <span id="selectedStyle">Expanding circle</span></div><div><b>Protocol:</b> 4.0 s inhale · 6.0 s exhale · no holds</div><div><b>Recommendation:</b> circle for simplest cue; ball for closest EZ-Air-style lineage.</div></div>
+  </div>
+</section>
+
+<section id="audio" class="grid">
+  <div class="span7 card">
+    <h2>Audio lab</h2>
+    <p class="lede">Audition sound treatments while the pacer runs. These controls are for development only and should not appear in the participant-facing version.</p>
+    <div class="presetGrid" id="audioPresets" role="group" aria-label="Audio preset">
+      <button class="preset" data-audio="silent" aria-pressed="true">Silence</button>
+      <button class="preset" data-audio="tones" aria-pressed="false">Phase tones</button>
+      <button class="preset" data-audio="brown" aria-pressed="false">Brown noise</button>
+      <button class="preset" data-audio="pink" aria-pressed="false">Pink-ish noise</button>
+      <button class="preset" data-audio="surf" aria-pressed="false">Soft waves</button>
+      <button class="preset" data-audio="rain" aria-pressed="false">Light rain</button>
+    </div>
+    <div class="audioControls">
+      <div><div class="rangeLine"><label for="volume">Ambience level</label><span id="volLabel">18%</span></div><input id="volume" type="range" min="0" max="45" value="18"></div>
+      <div><div class="rangeLine"><label for="toneMix">Phase cue level</label><span id="toneLabel">0%</span></div><input id="toneMix" type="range" min="0" max="35" value="0"></div>
+      <div><label for="customFile">Custom ambience file (local preview)</label><input id="customFile" type="file" accept="audio/*"></div>
+      <div><label for="customLoop">Custom audio behavior</label><select id="customLoop"><option value="loop">Loop continuously</option><option value="once">Play once</option></select></div>
+    </div>
+    <div class="audition"><button class="ghost" id="auditionAudio">Audition selected audio</button><button class="ghost" id="stopAudio">Stop audio</button></div>
+    <div class="recommend"><strong>Recommended study default:</strong> spoken setup → silent pacing → single soft completion chime. Waves/rain are useful alternatives to audition, but they are not methodologically inert.</div>
+  </div>
+  <div class="span5 card">
+    <h2>Current treatment</h2>
+    <div class="config"><div><b>Visual:</b> <span id="cfgVisual">Expanding circle</span></div><div><b>Labels:</b> <span id="cfgLabels">Every breath</span></div><div><b>Ambience:</b> <span id="cfgAudio">Silence</span></div><div><b>Ambience level:</b> <span id="cfgVol">18%</span></div><div><b>Phase cues:</b> <span id="cfgTone">0%</span></div></div>
+    <p class="small">This summary is intended to make prototyping choices explicit before the team locks the final MP4.</p>
+  </div>
+</section>
+
+<section id="voice" class="grid">
+  <div class="span7 card">
+    <h2>Instruction voice</h2>
+    <div class="script"><p>In the next ten minutes, you'll breathe along with this circle.</p><p>As it grows, breathe in gently through your nose. As it shrinks, breathe out slowly.</p><p>Keep each breath light and comfortable. There's no need to breathe deeply.</p><p>Sit comfortably and keep your eyes on the circle.</p><p>If you feel dizzy or short of breath, breathe normally for a moment, then rejoin when you are ready.</p><p>Let's practice three breaths together.</p></div>
+    <div class="voiceRow"><div><label for="voiceSelect">Browser voice for rough audition only</label><select id="voiceSelect"></select></div><div><label for="rate">Rate <span id="rateLabel">0.92×</span></label><input id="rate" type="range" min="78" max="110" value="92"></div></div>
+    <div class="audition"><button class="ghost" id="speak">Preview soft voice</button><button class="ghost" id="stopSpeak">Stop voice</button></div>
+  </div>
+  <div class="span5 card">
+    <h2>Voice direction</h2>
+    <p><strong>Target:</strong> soft, close, conversational, and clear. Not whispered; not performatively meditative.</p>
+    <p><strong>Pyle dynamic mic:</strong> 2–4 in / 5–10 cm away, 20–30° off-axis, pop filter or foam windscreen, mono WAV at 48 kHz. Aim for peaks around −12 to −6 dBFS.</p>
+    <p><strong>Minimal processing:</strong> high-pass 70–90 Hz → light EQ if needed → 2:1 compression with roughly 2–4 dB gain reduction → mild de-essing if needed → normalize around −16 LUFS, peak below −1 dBTP.</p>
+  </div>
+</section>
+
+<section id="research" class="card">
+  <h2>Research and derivative-content leads</h2>
+  <div class="researchList">
+    <div class="lead"><a href="https://osf.io/k4cje/files/dzvjq" target="_blank" rel="noopener">OSF paced-breathing video</a><p>Short research stimulus noted in the project working document; useful as a direct example of minimalist visual pacing.</p></div>
+    <div class="lead"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8296389/" target="_blank" rel="noopener">Laborde et al. 4:6 slow-paced breathing protocol</a><p>Direct precedent for 4 s inhalation / 6 s exhalation at 6 breaths/min using an EZ-Air-style pacer.</p></div>
+    <div class="lead"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8656666/" target="_blank" rel="noopener">You et al. dose-response study</a><p>Uses slow-paced visual breathing at 6 breaths/min across several durations, including 10 minutes.</p></div>
+    <div class="lead"><a href="https://osf.io/46gqa/" target="_blank" rel="noopener">Newman et al. expanding/contracting orb materials</a><p>Research-built audiovisual breathing stimulus and matched control materials.</p></div>
+    <div class="lead"><a href="https://umontreal.ca.panopto.com/Panopto/Pages/Viewer.aspx?id=086f2c6b-d2e0-4556-ab5b-b338000c7ce3" target="_blank" rel="noopener">Breathe with the Waves — coherent breathing</a><p>Full-length participant-facing reference for instructional tone and production density.</p></div>
+    <div class="lead"><a href="https://osf.io/agvh6/files/nqdte" target="_blank" rel="noopener">Finding Focus browser materials</a><p>Reference for matching production density and participant experience across study arms.</p></div>
+  </div>
+</section>
+
+<section id="build" class="grid">
+  <div class="span6 card"><h2>Qualtrics deployment</h2><p>Render one locked MP4 after the visual/audio treatment is selected. Preserve the current compliance logic: hide Next until completion, block seeking, pause/log tab switches, and record completion.</p><p class="small">Do not expose this development interface to participants.</p></div>
+  <div class="span6 card"><h2>Final QA checklist</h2><p>Verify all 60 cycles frame-by-frame after the final voice/audio mix; test Chrome, Safari, Firefox, and Edge; test tab-switch behavior; confirm captions and keyboard focus; confirm audio does not autoplay unexpectedly; then freeze the exact MP4 used in the study.</p></div>
+</section>
+<div class="footer">Refined development prototype. Final study delivery should use one fixed audiovisual file with documented settings.</div>
+</main>
+<script>
+(() => {
+  const D=600000, IN=4000, C=10000;
+  let running=false, t0=0, elapsed=0, raf=0, style='circle', lastPhase='';
+  let audioMode='silent', audioCtx=null, noiseSource=null, noiseGain=null, surfLfo=null, customAudio=null;
+  const stage=document.getElementById('stage'), visual=document.getElementById('visualLayer'), phaseEl=document.getElementById('phase'), timer=document.getElementById('timer');
+  const stageStatus=document.getElementById('stageStatus'), cycleStatus=document.getElementById('cycleStatus');
+  const styleNames={circle:'Expanding circle',ball:'Rising ball',bar:'Filling bar',water:'Water level',ring:'Circle + phase arc'};
+  const audioNames={silent:'Silence',tones:'Phase tones',brown:'Brown noise',pink:'Pink-ish noise',surf:'Soft waves',rain:'Light rain',custom:'Custom audio'};
+
+  function buildVisual(){
+    if(style==='circle') visual.innerHTML='<div class="circleGuide"></div><div class="circle" id="anim"></div>';
+    else if(style==='ball') visual.innerHTML='<div class="ballTrack"></div><div class="ball" id="anim"></div>';
+    else if(style==='bar') visual.innerHTML='<div class="barWrap"><div class="barFill" id="anim"></div></div>';
+    else if(style==='water') visual.innerHTML='<div class="waterBox"><div class="water" id="anim"></div></div>';
+    else visual.innerHTML='<div class="ring" id="ringArc"></div><div class="ringCore" id="anim"></div>';
+    renderAt(elapsed);
+  }
+  function ease(x){return .5-.5*Math.cos(Math.PI*x)}
+  function stateAt(ms){
+    const speed=Number(document.getElementById('demoSpeed').value)||1;
+    const virtual=Math.min(D,ms*speed);
+    const cycleClock=virtual>=D?D-1:virtual;
+    const cyc=cycleClock%C, inh=cyc<IN, f=inh?cyc/IN:(cyc-IN)/(C-IN), p=inh?ease(f):1-ease(f);
+    return {virtual,cyc,inh,f,p,speed};
+  }
+  function shouldLabel(virtual){
+    const mode=document.getElementById('labels').value;
+    if(mode==='none') return false;
+    if(mode==='always') return true;
+    return virtual < 3*C;
+  }
+  function renderAt(ms){
+    const st=stateAt(ms); const a=document.getElementById('anim');
+    if(a){
+      if(style==='circle') a.style.transform=`translate(-50%,-50%) scale(${0.52+0.72*st.p})`;
+      else if(style==='ball') a.style.top=`${15+(1-st.p)*68}%`;
+      else if(style==='bar') a.style.width=`${10+90*st.p}%`;
+      else if(style==='water') a.style.height=`${12+78*st.p}%`;
+      else if(style==='ring') a.style.transform=`translate(-50%,-50%) scale(${0.82+0.20*st.p})`;
+    }
+    if(style==='ring'){
+      const r=document.getElementById('ringArc'); if(r){const deg=Math.max(0,Math.min(360,st.f*360)); r.style.background=`conic-gradient(var(--accent) ${deg}deg,#41525d ${deg}deg)`;}
+    }
+    phaseEl.textContent=shouldLabel(st.virtual)?(st.inh?'Breathe in':'Breathe out'):'';
+    timer.textContent=fmt(D-st.virtual);
+    const cycle=Math.min(60,Math.floor(Math.max(0,st.virtual-1)/C)+1); cycleStatus.textContent=`Cycle ${ms===0?0:cycle} / 60`;
+    stageStatus.textContent=running?(st.inh?'Inhale · 4 s':'Exhale · 6 s'):(ms>0?'Paused':'Ready');
+    const ph=st.inh?'in':'out'; if(running && ph!==lastPhase){phaseTone(ph);lastPhase=ph}
+  }
+  function update(){
+    if(!running) return;
+    elapsed=Math.max(0,performance.now()-t0); renderAt(elapsed);
+    const speed=Number(document.getElementById('demoSpeed').value)||1;
+    if(elapsed*speed>=D){elapsed=D/speed;running=false;renderAt(elapsed);stageStatus.textContent='Complete';phaseEl.textContent='Complete';stopAmbience(true);return}
+    raf=requestAnimationFrame(update);
+  }
+  function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000)); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`}
+  function start(){if(running)return; running=true; t0=performance.now()-elapsed; ensureAudio(); update()}
+  function pause(){if(!running)return; elapsed=Math.max(0,performance.now()-t0); running=false; cancelAnimationFrame(raf); renderAt(elapsed); stopAmbience(false)}
+  function reset(){running=false; cancelAnimationFrame(raf); elapsed=0; lastPhase=''; stopAmbience(true); buildVisual(); renderAt(0)}
+  document.getElementById('start').addEventListener('click',start); document.getElementById('pause').addEventListener('click',pause); document.getElementById('reset').addEventListener('click',reset);
+
+  document.querySelectorAll('.choice[data-style]').forEach(btn=>btn.addEventListener('click',()=>{
+    style=btn.dataset.style; document.querySelectorAll('.choice[data-style]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));
+    document.getElementById('selectedStyle').textContent=styleNames[style]; document.getElementById('cfgVisual').textContent=styleNames[style]; buildVisual();
+  }));
+  document.getElementById('labels').addEventListener('change',e=>{document.getElementById('cfgLabels').textContent=e.target.options[e.target.selectedIndex].text; renderAt(elapsed)});
+  document.getElementById('demoSpeed').addEventListener('change',()=>renderAt(elapsed));
+
+  function getAudioContext(){if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); return audioCtx}
+  function makeNoise(kind){
+    const ctx=getAudioContext(), sr=ctx.sampleRate, len=sr*6, b=ctx.createBuffer(1,len,sr), o=b.getChannelData(0);
+    let brown=0,b0=0,b1=0,b2=0;
+    for(let i=0;i<len;i++){const w=Math.random()*2-1;if(kind==='brown'){brown=(brown+.02*w)/1.02;o[i]=brown*3.2}else{b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.969*b2+w*.153852;o[i]=(b0+b1+b2+w*.12)*.15}}
+    return b;
+  }
+  function stopAmbience(full){
+    if(noiseSource){try{noiseSource.stop()}catch{} noiseSource=null}
+    if(surfLfo){try{surfLfo.stop()}catch{} surfLfo=null}
+    if(customAudio){customAudio.pause(); if(full) customAudio.currentTime=0; customAudio=null}
+  }
+  function startAmbience(mode){
+    stopAmbience(false); if(mode==='silent'||mode==='tones') return;
+    const ctx=getAudioContext(); ctx.resume(); noiseGain=ctx.createGain(); noiseGain.gain.value=(Number(document.getElementById('volume').value)/100)*.34; noiseGain.connect(ctx.destination);
+    if(['brown','pink','surf','rain'].includes(mode)){
+      noiseSource=ctx.createBufferSource(); noiseSource.buffer=makeNoise(mode==='brown'?'brown':'pink'); noiseSource.loop=true;
+      let node=noiseSource;
+      if(mode==='rain'){const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=1600;node.connect(hp);node=hp}
+      if(mode==='surf'){
+        const amp=ctx.createGain(); amp.gain.value=.42; node.connect(amp); node=amp;
+        surfLfo=ctx.createOscillator(); const lfoGain=ctx.createGain(); surfLfo.frequency.value=.085; lfoGain.gain.value=.20; surfLfo.connect(lfoGain).connect(amp.gain); surfLfo.start();
+        const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1400; node.connect(lp); node=lp;
+      }
+      node.connect(noiseGain); noiseSource.start();
+    } else if(mode==='custom'){
+      const f=document.getElementById('customFile').files[0]; if(!f)return;
+      customAudio=new Audio(URL.createObjectURL(f)); customAudio.loop=document.getElementById('customLoop').value==='loop'; customAudio.volume=Number(document.getElementById('volume').value)/100; customAudio.play().catch(()=>{});
+    }
+  }
+  function ensureAudio(){
+    const tone=Number(document.getElementById('toneMix').value); if(audioMode==='silent'&&tone===0)return;
+    getAudioContext().resume(); startAmbience(audioMode);
+  }
+  function phaseTone(ph){
+    if(!audioCtx)return; let amt=Number(document.getElementById('toneMix').value)/100; if(audioMode==='tones') amt=Math.max(amt,.18); if(!amt)return;
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.frequency.value=ph==='in'?392:294;
+    const t=audioCtx.currentTime; g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(Math.max(.0002,amt*.07),t+.025); g.gain.exponentialRampToValueAtTime(.0001,t+.30); o.connect(g).connect(audioCtx.destination); o.start(t); o.stop(t+.32);
+  }
+  function chooseAudio(mode,btn){audioMode=mode; document.querySelectorAll('.preset[data-audio]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn))); document.getElementById('cfgAudio').textContent=audioNames[mode]||mode; if(running)startAmbience(mode)}
+  document.querySelectorAll('.preset[data-audio]').forEach(b=>b.addEventListener('click',()=>chooseAudio(b.dataset.audio,b)));
+  document.getElementById('customFile').addEventListener('change',()=>{if(document.getElementById('customFile').files[0]){audioMode='custom';document.querySelectorAll('.preset[data-audio]').forEach(b=>b.setAttribute('aria-pressed','false'));document.getElementById('cfgAudio').textContent='Custom audio'; if(running)startAmbience('custom')}});
+  document.getElementById('volume').addEventListener('input',e=>{const v=e.target.value+'%';document.getElementById('volLabel').textContent=v;document.getElementById('cfgVol').textContent=v;if(noiseGain)noiseGain.gain.value=(Number(e.target.value)/100)*.34;if(customAudio)customAudio.volume=Number(e.target.value)/100});
+  document.getElementById('toneMix').addEventListener('input',e=>{const v=e.target.value+'%';document.getElementById('toneLabel').textContent=v;document.getElementById('cfgTone').textContent=v});
+  document.getElementById('auditionAudio').addEventListener('click',()=>{getAudioContext().resume();startAmbience(audioMode);if(audioMode==='tones')phaseTone('in')});
+  document.getElementById('stopAudio').addEventListener('click',()=>stopAmbience(true));
+
+  const scriptText="In the next ten minutes, you'll breathe along with this circle. As it grows, breathe in gently through your nose. As it shrinks, breathe out slowly. Keep each breath light and comfortable. There's no need to breathe deeply. Sit comfortably and keep your eyes on the circle. If you feel dizzy or short of breath, breathe normally for a moment, then rejoin when you are ready. Let's practice three breaths together.";
+  let voices=[];
+  function loadVoices(){voices=speechSynthesis.getVoices();const sel=document.getElementById('voiceSelect');sel.innerHTML='';const english=voices.filter(v=>/^en/i.test(v.lang));(english.length?english:voices).forEach(v=>{const o=document.createElement('option');o.value=String(voices.indexOf(v));o.textContent=`${v.name} (${v.lang||'voice'})`;sel.appendChild(o)});}
+  if('speechSynthesis' in window){speechSynthesis.onvoiceschanged=loadVoices;loadVoices()}
+  document.getElementById('rate').addEventListener('input',e=>document.getElementById('rateLabel').textContent=(Number(e.target.value)/100).toFixed(2)+'×');
+  document.getElementById('speak').addEventListener('click',()=>{if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(scriptText);u.rate=Number(document.getElementById('rate').value)/100;u.pitch=.96;u.volume=.82;const v=voices[Number(document.getElementById('voiceSelect').value)];if(v)u.voice=v;speechSynthesis.speak(u)});
+  document.getElementById('stopSpeak').addEventListener('click',()=>{if('speechSynthesis' in window)speechSynthesis.cancel()});
+
+  buildVisual(); renderAt(0);
+})();
+</script>
+</body>
+</html>
