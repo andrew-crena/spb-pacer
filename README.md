@@ -10,6 +10,8 @@ Everything here implements one specification: 6 breaths per minute (0.1 Hz), inh
 | `videos/pacer_circle_4-6_full_session_phase-tones.mp4` | Identical video with soft tones at each in-breath and out-breath onset, so you can hear the alternative. Not recommended for the study. |
 | `videos/preview_<style>_4-6_60s.mp4` | 60-s previews of five visual designs (circle, ball, bar, water, ring). Three labelled breaths, then three unlabelled. No audio track. |
 | `videos/..._timing_check.png` and `.csv` | Frame-by-frame measurement of the circle in the full-session MP4 against the timing model. |
+| `index.html` | Front page for the GitHub Pages site. Links every file: videos and images play on the site, documents and code open formatted on GitHub. |
+| `videos/posters/` | Still frames shown on the front page before each video plays. |
 | `pacer_gallery.html` | Interactive comparison of the five designs, running in sync from one clock, with a live waveform trace. Open in any browser. |
 | `qualtrics/option-A_video/` | HTML and JavaScript for embedding the MP4 in Qualtrics with gating, seek blocking, pause-on-tab-switch, and logging. |
 | `qualtrics/option-B_live-pacer/` | HTML and JavaScript for a live, clock-driven pacer drawn in Qualtrics. No video hosting needed. |
